@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tính báo giá xây nhà — TRE XANH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#173F35; --bamboo:#5D8067; --soft-green:#DCE8DF;
+  --beige:#F4F0E8; --sand:#E7DED0; --charcoal:#202522; --white:#FFFFFF; --bronze:#A9865B;
+  --forest-rgb:23,63,53; --radius-s:6px; --radius-m:10px; --radius-l:18px;
+  --ease:cubic-bezier(.16,.84,.32,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Be Vietnam Pro',sans-serif;color:var(--charcoal);background:var(--beige);-webkit-font-smoothing:antialiased;line-height:1.5;}
+h1,h2,h3,h4,.serif{font-family:'Fraunces',serif;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+:focus-visible{outline:2px solid var(--bronze);outline-offset:3px;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--bamboo);display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.eyebrow::before{content:"";width:22px;height:1px;background:var(--bronze);display:block;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:15px 28px;border-radius:999px;font-weight:600;font-size:15px;transition:transform .25s var(--ease),background .25s,box-shadow .25s;white-space:nowrap;}
+.btn-primary{background:var(--forest);color:var(--white);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(var(--forest-rgb),.28);}
+.btn-ghost{background:transparent;color:var(--forest);border:1.5px solid rgba(var(--forest-rgb),.28);}
+.btn-ghost:hover{border-color:var(--forest);background:rgba(var(--forest-rgb),.05);}
+.btn-outline-light{background:transparent;color:var(--white);border:1.5px solid rgba(255,255,255,.4);}
+.btn-outline-light:hover{background:rgba(255,255,255,.12);border-color:#fff;}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none !important;}
+.btn-block{width:100%;}
+
+/* ===== HEADER (minimal) ===== */
+header.site{position:sticky;top:0;z-index:60;background:rgba(244,240,232,.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(23,63,53,.08);}
+.header-row{display:flex;align-items:center;justify-content:space-between;height:74px;}
+.logo-block{display:flex;flex-direction:column;line-height:1.1;}
+.logo-block .name{font-family:'Fraunces',serif;font-weight:600;font-size:20px;letter-spacing:.02em;color:var(--forest);}
+.logo-block .sub{font-size:9px;letter-spacing:.12em;color:var(--bamboo);font-weight:700;margin-top:2px;}
+.header-actions{display:flex;align-items:center;gap:14px;font-size:13.5px;color:#6C7A72;}
+.header-actions .phone{font-weight:700;color:var(--forest);}
+@media(max-width:520px){.header-actions .phone-label{display:none;}}
+
+/* ===== CALCULATOR SHELL ===== */
+.calc-page{min-height:100vh;padding-bottom:80px;}
+.calc-top{background:var(--forest);color:#fff;padding:40px 0 78px;position:relative;overflow:hidden;}
+.calc-top .wrap{max-width:880px;position:relative;z-index:2;}
+.calc-top h1{font-size:clamp(24px,3.4vw,34px);font-weight:600;}
+.calc-top p{margin-top:8px;color:rgba(255,255,255,.62);font-size:14.5px;max-width:460px;}
+.progress-track{max-width:880px;margin:0 auto;padding:0 24px;margin-top:-42px;position:relative;z-index:3;}
+.progress-shell{background:#fff;border-radius:var(--radius-l);box-shadow:0 20px 44px rgba(23,63,53,.16);padding:22px 26px;display:flex;align-items:center;gap:0;}
+.p-step{flex:1;display:flex;align-items:center;gap:12px;position:relative;}
+.p-step .circ{width:32px;height:32px;border-radius:50%;background:var(--soft-green);color:var(--forest);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;transition:.3s;}
+.p-step.done .circ{background:var(--bamboo);color:#fff;}
+.p-step.active .circ{background:var(--forest);color:#fff;box-shadow:0 0 0 5px rgba(23,63,53,.14);}
+.p-step .lbl{font-size:12.5px;font-weight:600;color:#8A968E;display:none;}
+.p-step.active .lbl{color:var(--forest);}
+.p-line{flex:1;height:2px;background:var(--soft-green);margin:0 -2px;position:relative;top:-14px;}
+.p-line.done{background:var(--bamboo);}
+@media(min-width:720px){.p-step .lbl{display:block;}}
+
+.calc-body{max-width:720px;margin:44px auto 0;padding:0 24px;}
+.calc-card{background:#fff;border-radius:var(--radius-l);padding:40px;border:1px solid rgba(23,63,53,.07);}
+.calc-card h2{font-size:24px;color:var(--forest);font-weight:600;}
+.calc-card>.hint{margin-top:8px;color:#6C7A72;font-size:14px;}
+.field-group{margin-top:28px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+label.f-label{display:block;font-size:13.5px;font-weight:600;color:var(--charcoal);margin-bottom:8px;}
+label.f-label .req{color:#C0563D;}
+input.f-input,select.f-input,textarea.f-input{width:100%;padding:14px 16px;border:1.5px solid #E3DDD0;border-radius:var(--radius-m);font-size:15px;font-family:inherit;background:#FCFAF6;transition:border .2s,background .2s;}
+input.f-input:focus,select.f-input:focus,textarea.f-input:focus{border-color:var(--forest);background:#fff;outline:none;}
+textarea.f-input{resize:vertical;min-height:90px;}
+.f-error{color:#C0563D;font-size:12.5px;margin-top:6px;display:none;}
+.field.has-error input,.field.has-error select{border-color:#C0563D;}
+.field.has-error .f-error{display:block;}
+.field{margin-bottom:20px;}
+.f-suffix-wrap{position:relative;}
+.f-suffix-wrap span{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#8A968E;font-size:13px;font-weight:600;}
+.area-preview{margin-top:6px;background:var(--soft-green);color:var(--forest);border-radius:var(--radius-m);padding:14px 18px;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+
+.radio-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.radio-card{border:1.5px solid #E3DDD0;border-radius:var(--radius-m);padding:16px 14px;text-align:center;transition:.2s;background:#FCFAF6;}
+.radio-card:hover{border-color:var(--bamboo);}
+.radio-card.sel{border-color:var(--forest);background:var(--soft-green);}
+.radio-card .ic{font-size:22px;}
+.radio-card .t{margin-top:8px;font-size:13.5px;font-weight:600;}
+@media(max-width:520px){.radio-cards{grid-template-columns:repeat(2,1fr);}.field-row{grid-template-columns:1fr;}}
+
+.stepper-input{display:flex;align-items:center;gap:0;border:1.5px solid #E3DDD0;border-radius:var(--radius-m);overflow:hidden;width:fit-content;background:#FCFAF6;}
+.stepper-input button{width:46px;height:46px;font-size:20px;font-weight:600;color:var(--forest);}
+.stepper-input button:hover{background:var(--soft-green);}
+.stepper-input .val{width:70px;text-align:center;font-weight:700;font-size:16px;}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid #EFEAE0;}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-row .t-label{font-size:14.5px;font-weight:600;}
+.toggle-row .t-desc{font-size:12.5px;color:#8A968E;margin-top:2px;}
+.switch{width:46px;height:26px;border-radius:999px;background:#E3DDD0;position:relative;transition:.25s;flex-shrink:0;}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.switch.on{background:var(--bamboo);}
+.switch.on::after{left:23px;}
+
+.pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.pkg-card{border:2px solid #E3DDD0;border-radius:var(--radius-l);padding:26px 22px;position:relative;background:#FCFAF6;transition:.2s;cursor:pointer;}
+.pkg-card:hover{border-color:var(--bamboo);}
+.pkg-card.sel{border-color:var(--forest);background:var(--white);box-shadow:0 14px 30px rgba(23,63,53,.14);}
+.pkg-badge{position:absolute;top:-11px;right:18px;background:var(--bronze);color:#fff;font-size:10.5px;font-weight:700;padding:4px 12px;border-radius:999px;letter-spacing:.04em;}
+.pkg-card h4{font-size:17px;font-weight:600;color:var(--forest);}
+.pkg-card p{margin-top:8px;font-size:13px;color:#6C7A72;line-height:1.6;min-height:58px;}
+.pkg-card .price{margin-top:14px;font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:var(--charcoal);}
+.pkg-card .price small{font-family:'Be Vietnam Pro',sans-serif;font-size:11.5px;color:#8A968E;font-weight:500;display:block;}
+@media(max-width:640px){.pkg-grid{grid-template-columns:1fr;}}
+
+.addon-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.addon-card{display:flex;align-items:center;gap:12px;border:1.5px solid #E3DDD0;border-radius:var(--radius-m);padding:13px 15px;background:#FCFAF6;transition:.2s;}
+.addon-card:hover{border-color:var(--bamboo);}
+.addon-card.sel{border-color:var(--forest);background:var(--soft-green);}
+.addon-check{width:19px;height:19px;border-radius:5px;border:1.5px solid #C7C0AE;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.addon-card.sel .addon-check{background:var(--forest);border-color:var(--forest);color:#fff;}
+.addon-card .t{font-size:13.5px;font-weight:600;flex:1;}
+@media(max-width:560px){.addon-grid{grid-template-columns:1fr;}}
+
+.check-row{display:flex;gap:12px;align-items:flex-start;margin-top:24px;padding:16px;background:#FCFAF6;border-radius:var(--radius-m);border:1.5px solid #E3DDD0;}
+.check-row.has-error{border-color:#C0563D;}
+.checkbox-box{width:20px;height:20px;border-radius:5px;border:1.5px solid #C7C0AE;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:.2s;}
+.checkbox-box.on{background:var(--forest);border-color:var(--forest);color:#fff;}
+.check-row .txt{font-size:13.5px;color:#4B5751;line-height:1.5;}
+
+.calc-nav{display:flex;justify-content:space-between;margin-top:32px;gap:12px;}
+.calc-nav .spacer{flex:1;}
+
+.sticky-mobile-cta{display:none;position:fixed;left:0;right:0;bottom:0;background:#fff;padding:14px 18px;box-shadow:0 -8px 24px rgba(0,0,0,.08);z-index:40;gap:10px;}
+@media(max-width:640px){
+  .sticky-mobile-cta{display:flex;}
+  .calc-nav{display:none;}
+  .calc-body{margin-bottom:20px;}
+  .calc-card{padding:26px 20px;}
+}
+
+/* result */
+.result-hero{background:var(--forest);color:#fff;padding:54px 0 96px;text-align:center;}
+.result-hero .eyebrow{justify-content:center;color:var(--soft-green);}
+.result-hero .eyebrow::before{background:var(--soft-green);}
+.result-hero h1{font-size:clamp(24px,3.4vw,34px);font-weight:600;}
+.result-hero p{margin-top:10px;color:rgba(255,255,255,.6);font-size:14.5px;}
+.result-body{max-width:860px;margin:-64px auto 0;padding:0 24px 100px;}
+.price-card{background:#fff;border-radius:var(--radius-l);padding:44px;text-align:center;box-shadow:0 24px 50px rgba(23,63,53,.16);}
+.price-card .lbl{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--bamboo);font-weight:700;}
+.price-card .num{font-family:'Fraunces',serif;font-size:clamp(38px,5.5vw,58px);font-weight:600;color:var(--forest);margin-top:12px;letter-spacing:-.01em;}
+.price-card .range{margin-top:8px;font-size:15px;color:#6C7A72;font-weight:600;}
+.price-card .disclaimer{margin-top:22px;font-size:12.5px;color:#9AA39C;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;}
+
+.summary-grid{margin-top:26px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.sum-card{background:#fff;border-radius:var(--radius-m);padding:18px 20px;border:1px solid rgba(23,63,53,.08);}
+.sum-card .k{font-size:11.5px;color:#8A968E;text-transform:uppercase;letter-spacing:.06em;font-weight:700;}
+.sum-card .v{margin-top:6px;font-size:15px;font-weight:600;color:var(--forest);}
+@media(max-width:700px){.summary-grid{grid-template-columns:1fr 1fr;}}
+
+.breakdown{margin-top:26px;background:#fff;border-radius:var(--radius-l);padding:30px 32px;border:1px solid rgba(23,63,53,.08);}
+.breakdown h3{font-size:17px;color:var(--forest);font-weight:600;margin-bottom:16px;}
+table.bk-table{width:100%;border-collapse:collapse;}
+table.bk-table th{text-align:left;font-size:11.5px;color:#8A968E;text-transform:uppercase;letter-spacing:.05em;padding:10px 8px;border-bottom:1.5px solid #EFEAE0;}
+table.bk-table td{padding:13px 8px;font-size:14px;border-bottom:1px solid #F3EFE6;}
+table.bk-table td.num,table.bk-table th.num{text-align:right;}
+table.bk-table tr.total td{font-weight:700;color:var(--forest);border-top:1.5px solid var(--forest);border-bottom:none;}
+.bk-cards{display:none;}
+@media(max-width:640px){
+  table.bk-table{display:none;}
+  .bk-cards{display:flex;flex-direction:column;gap:10px;}
+  .bk-card{background:#FCFAF6;border:1px solid #EFEAE0;border-radius:var(--radius-m);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+  .bk-card .n{font-weight:600;font-size:13.5px;}
+  .bk-card .a{font-size:11.5px;color:#8A968E;margin-top:2px;}
+  .bk-card .p{font-weight:700;color:var(--forest);font-size:13.5px;}
+}
+
+.result-cta{margin-top:30px;background:var(--charcoal);color:#fff;border-radius:var(--radius-l);padding:36px 32px;text-align:center;}
+.result-cta h3{font-size:19px;font-weight:600;}
+.result-cta p{margin-top:8px;color:rgba(255,255,255,.6);font-size:13.5px;max-width:460px;margin-left:auto;margin-right:auto;}
+.result-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px;}
+.result-restart{text-align:center;margin-top:18px;}
+.result-restart button{font-size:13px;color:#8A968E;font-weight:600;text-decoration:underline;}
+
+.success-overlay{position:fixed;inset:0;background:rgba(23,63,53,.92);display:none;align-items:center;justify-content:center;z-index:100;padding:24px;}
+.success-overlay.show{display:flex;}
+.success-box{background:#fff;border-radius:var(--radius-l);padding:48px 40px;max-width:420px;text-align:center;animation:pop .4s var(--ease);}
+@keyframes pop{from{transform:scale(.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-check{width:64px;height:64px;border-radius:50%;background:var(--soft-green);color:var(--forest);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:30px;}
+.success-box h3{font-size:20px;color:var(--forest);font-weight:600;}
+.success-box p{margin-top:10px;font-size:14px;color:#6C7A72;line-height:1.6;}
+
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--charcoal);color:#fff;padding:14px 22px;border-radius:999px;font-size:13.5px;font-weight:500;z-index:120;opacity:0;transition:.3s var(--ease);pointer-events:none;display:flex;align-items:center;gap:10px;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.fade-in{animation:fadeIn .45s var(--ease);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.001s !important;transition-duration:.001s !important;}}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<div class="success-overlay" id="successOverlay"></div>
+
+<script>
+/* =========================================================
+   TRE XANH — Công cụ tính báo giá xây nhà (standalone)
+   ========================================================= */
+
+/* ---------- PRICING CONFIG (centralized) ---------- */
+const pricingConfig = {
+  packages: {
+    standard: { key:'standard', name:'GÓI TIÊU CHUẨN', price: 5500000, desc:'Đáp ứng đầy đủ nhu cầu sử dụng, tối ưu chi phí.', badge:null },
+    kha:      { key:'kha', name:'GÓI KHÁ', price: 6500000, desc:'Vật liệu và thiết bị ở mức khá, chú trọng thẩm mỹ.', badge:'PHỔ BIẾN' },
+    caocap:   { key:'caocap', name:'GÓI CAO CẤP', price: 8000000, desc:'Vật liệu cao cấp, thiết kế chỉn chu, hoàn thiện theo yêu cầu.', badge:null },
+  },
+  areaFactors: {
+    floor: 1.0,
+    mezzanine: 0.7,
+    rooftop: 0.3,
+    basement: 1.5,
+    foundation: 0.35,
+  },
+  addons: [
+    { key:'design_kt', label:'Thiết kế kiến trúc', flat: 0, perM2: 150000 },
+    { key:'design_nt', label:'Thiết kế nội thất', flat: 0, perM2: 200000 },
+    { key:'noithat_cb', label:'Nội thất cơ bản', flat: 0, perM2: 1200000 },
+    { key:'sanvuon', label:'Sân vườn', flat: 45000000, perM2: 0 },
+    { key:'conghangrao', label:'Cổng & hàng rào', flat: 35000000, perM2: 0 },
+    { key:'dienmattroi', label:'Hệ thống điện mặt trời', flat: 90000000, perM2: 0 },
+    { key:'nuocnong', label:'Máy nước nóng NLMT', flat: 18000000, perM2: 0 },
+    { key:'smarthome', label:'Smart Home', flat: 55000000, perM2: 0 },
+    { key:'hoboi', label:'Hồ bơi', flat: 220000000, perM2: 0 },
+    { key:'khac', label:'Khác (ghi chú thêm)', flat: 0, perM2: 0 },
+  ],
+  rangePct: 0.085,
+};
+
+/* ---------- STATE ---------- */
+const state = {
+  form: {
+    province:'', district:'', landType:'nhapho', landWidth:'', landLength:'',
+    floorArea:'', useCustomFloorArea:false, floors:1, mezzanine:false, rooftop:false,
+    basement:false, basementArea:'',
+    pkg:'kha', addons:[],
+    name:'', phone:'', email:'', timeline:'chua-xac-dinh', note:'', consent:false,
+  },
+  step: 1, // 1-4, 5 = result
+  errors: {},
+  lastQuote: null,
+};
+
+/* ---------- UTILS ---------- */
+const fmtVND = n => Math.round(n).toLocaleString('vi-VN') + 'đ';
+const fmtBillion = n => (n/1000000000).toLocaleString('vi-VN',{maximumFractionDigits:2}) + ' tỷ';
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const on = (sel, evt, fn) => { const els = typeof sel==='string' ? $$(sel) : [sel]; els.forEach(el=>el && el.addEventListener(evt, fn)); };
+
+function toast(msg, icon){
+  const t = $('#toast');
+  t.innerHTML = (icon? `<span>${icon}</span>`:'') + msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ---------- MOCK LEAD SERVICE (mô phỏng POST /api/leads) ---------- */
+const LEADS_KEY = 'trexanh_leads_v1';
+function getLeads(){ try{ return JSON.parse(localStorage.getItem(LEADS_KEY)) || []; }catch(e){ return []; } }
+function saveLeads(leads){ localStorage.setItem(LEADS_KEY, JSON.stringify(leads)); }
+
+function submitLead(payload){
+  return new Promise((resolve)=>{
+    setTimeout(()=>{
+      const leads = getLeads();
+      const lead = {
+        id: 'L'+Date.now(),
+        name: payload.name, phone: payload.phone, email: payload.email,
+        location: payload.location, houseType: payload.houseType,
+        landArea: payload.landArea,
+        budgetLabel: `${fmtBillion(payload.estimatedPriceMin)} – ${fmtBillion(payload.estimatedPriceMax)}`,
+        floorsLabel: `${payload.floors} tầng`,
+        status: 'Moi',
+        timeline: payload.timeline,
+        note: payload.note,
+        createdAt: payload.createdAt,
+        package: payload.package,
+        estimatedPrice: payload.estimatedPrice,
+        raw: payload,
+      };
+      leads.unshift(lead);
+      saveLeads(leads);
+      resolve({ ok:true, id: lead.id });
+    }, 900);
+  });
+}
+
+/* ---------- CALCULATION LOGIC ---------- */
+function computeQuote(f){
+  const pkg = pricingConfig.packages[f.pkg];
+  const unit = pkg.price;
+  const floorArea = Number(f.floorArea)||0;
+  const floors = Number(f.floors)||1;
+
+  const items = [];
+  const foundationArea = floorArea * pricingConfig.areaFactors.foundation;
+  items.push({label:'Phần móng', area:foundationArea, unit: unit*pricingConfig.areaFactors.foundation, total: foundationArea*unit});
+  for(let i=1;i<=floors;i++){
+    items.push({label:`Tầng ${i}`, area:floorArea, unit: unit, total: floorArea*unit});
+  }
+  if(f.mezzanine){
+    const a = floorArea*pricingConfig.areaFactors.mezzanine;
+    items.push({label:'Tầng tum', area:a, unit: unit*pricingConfig.areaFactors.mezzanine, total: a*unit});
+  }
+  if(f.rooftop){
+    const a = floorArea*pricingConfig.areaFactors.rooftop;
+    items.push({label:'Sân thượng', area:a, unit: unit*pricingConfig.areaFactors.rooftop, total: a*unit});
+  }
+  if(f.basement){
+    const a = Number(f.basementArea)||0;
+    items.push({label:'Tầng hầm', area:a, unit: unit*pricingConfig.areaFactors.basement, total: a*unit*pricingConfig.areaFactors.basement});
+  }
+
+  const constructionSubtotal = items.reduce((s,i)=>s+i.total,0);
+  const totalConstructionArea = items.reduce((s,i)=> i.label==='Phần móng' ? s : s+i.area, 0);
+
+  let addonsTotal = 0;
+  const addonItems = [];
+  (f.addons||[]).forEach(key=>{
+    const a = pricingConfig.addons.find(x=>x.key===key);
+    if(!a) return;
+    const total = a.flat + a.perM2*totalConstructionArea;
+    addonsTotal += total;
+    addonItems.push({label:a.label, total});
+  });
+  if(addonItems.length){
+    items.push({label:'Hạng mục bổ sung', area:null, unit:null, total: addonsTotal, isAddon:true, addonItems});
+  }
+
+  const estimatedPrice = constructionSubtotal + addonsTotal;
+  const estimatedPriceMin = estimatedPrice*(1-pricingConfig.rangePct);
+  const estimatedPriceMax = estimatedPrice*(1+pricingConfig.rangePct);
+
+  return { items, totalConstructionArea, estimatedPrice, estimatedPriceMin, estimatedPriceMax, addonsTotal };
+}
+
+/* ---------- HEADER ---------- */
+function renderHeader(){
+  return `
+  <header class="site">
+    <div class="wrap header-row">
+      <a href="#" class="logo-block" onclick="return false;">
+        <span class="name">TRE XANH</span>
+        <span class="sub">XÂY DỰNG &amp; KIẾN TẠO KHÔNG GIAN SỐNG</span>
+      </a>
+      <div class="header-actions">
+        <span class="phone-label">Cần tư vấn?</span>
+        <span class="phone">1900 6868</span>
+      </div>
+    </div>
+  </header>`;
+}
+
+/* ---------- CALCULATOR SHELL ---------- */
+const STEP_LABELS = ['Thông tin đất','Quy mô','Mức hoàn thiện','Liên hệ'];
+
+function renderCalcProgress(){
+  const s = Math.min(state.step,4);
+  let html = '<div class="progress-shell">';
+  for(let i=1;i<=4;i++){
+    const cls = state.step>4 ? 'done' : (i<s?'done':(i===s?'active':''));
+    html += `<div class="p-step ${cls}"><div class="circ">${cls==='done'?'✓':String(i).padStart(2,'0')}</div><div class="lbl">${STEP_LABELS[i-1]}</div></div>`;
+    if(i<4) html += `<div class="p-line ${(state.step>4 || i<s) ? 'done':''}"></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderApp(){
+  if(state.step===5){
+    $('#app').innerHTML = renderResultPage();
+    wireResultPage();
+    window.scrollTo({top:0});
+    return;
+  }
+  $('#app').innerHTML = `
+  ${renderHeader()}
+  <div class="calc-page">
+    <div class="calc-top">
+      <div class="wrap">
+        <div class="eyebrow" style="color:var(--soft-green);">Công cụ tính báo giá</div>
+        <h1>Xây nhà bao nhiêu? Tính ngay trong 2 phút.</h1>
+        <p>Nhập thông tin công trình và nhận chi phí xây dựng dự kiến ngay lập tức.</p>
+      </div>
+    </div>
+    <div class="progress-track">${renderCalcProgress()}</div>
+    <div class="calc-body">
+      <div class="calc-card fade-in" id="calcCardInner">${renderCalcStep()}</div>
+      ${renderCalcNav()}
+    </div>
+  </div>
+  ${renderStickyCta()}
+  `;
+  wireCalcStep();
+  window.scrollTo({top:0});
+}
+
+function renderStickyCta(){
+  const isLast = state.step===4;
+  return `<div class="sticky-mobile-cta">
+    ${state.step>1?`<button class="btn btn-ghost btn-block" id="mBack">Quay lại</button>`:''}
+    <button class="btn btn-primary btn-block" id="mNext">${isLast?'NHẬN BÁO GIÁ DỰ KIẾN':'Tiếp tục'}</button>
+  </div>`;
+}
+function renderCalcNav(){
+  const isLast = state.step===4;
+  return `<div class="calc-nav">
+    <div>${state.step>1?`<button class="btn btn-ghost" id="backBtn">← Quay lại</button>`:'<div></div>'}</div>
+    <div class="spacer"></div>
+    <button class="btn btn-primary" id="nextBtn">${isLast?'NHẬN BÁO GIÁ DỰ KIẾN':'Tiếp tục →'}</button>
+  </div>`;
+}
+
+function fieldError(key){ return state.errors[key] ? `<div class="f-error">${state.errors[key]}</div>` : ''; }
+function errCls(key){ return state.errors[key] ? 'has-error' : ''; }
+
+function renderCalcStep(){
+  const f = state.form;
+  if(state.step===1){
+    const area = (Number(f.landWidth)||0) * (Number(f.landLength)||0);
+    return `
+    <div class="eyebrow">Bước 01</div>
+    <h2>Công trình của bạn ở đâu?</h2>
+    <p class="hint">Thông tin này giúp Tre Xanh ước tính điều kiện thi công phù hợp khu vực.</p>
+    <div class="field-group">
+      <div class="field-row">
+        <div class="field ${errCls('province')}">
+          <label class="f-label">Tỉnh / Thành phố <span class="req">*</span></label>
+          <select class="f-input" id="f-province">
+            <option value="">Chọn tỉnh/thành</option>
+            ${['TP. Hồ Chí Minh','Hà Nội','Cần Thơ','Đà Nẵng','Hải Phòng','Bình Dương','Đồng Nai','Khác'].map(o=>`<option value="${o}" ${f.province===o?'selected':''}>${o}</option>`).join('')}
+          </select>
+          ${fieldError('province')}
+        </div>
+        <div class="field">
+          <label class="f-label">Khu vực</label>
+          <input class="f-input" id="f-district" placeholder="VD: Ninh Kiều" value="${f.district}">
+        </div>
+      </div>
+      <div class="field">
+        <label class="f-label">Loại khu đất <span class="req">*</span></label>
+        <div class="radio-cards" id="landTypeCards">
+          ${[['nhapho','Nhà phố','🏠'],['bietthu','Biệt thự','🏛️'],['capbon','Nhà cấp 4','🏡'],['nhavuon','Nhà vườn','🌿'],['khac','Khác','✦']].map(([k,l,ic])=>`
+            <div class="radio-card ${f.landType===k?'sel':''}" data-val="${k}"><div class="ic">${ic}</div><div class="t">${l}</div></div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field ${errCls('landWidth')}">
+          <label class="f-label">Chiều rộng khu đất <span class="req">*</span></label>
+          <div class="f-suffix-wrap"><input class="f-input" type="number" min="0" id="f-landWidth" value="${f.landWidth}" placeholder="5"><span>m</span></div>
+          ${fieldError('landWidth')}
+        </div>
+        <div class="field ${errCls('landLength')}">
+          <label class="f-label">Chiều dài khu đất <span class="req">*</span></label>
+          <div class="f-suffix-wrap"><input class="f-input" type="number" min="0" id="f-landLength" value="${f.landLength}" placeholder="18"><span>m</span></div>
+          ${fieldError('landLength')}
+        </div>
+      </div>
+      <div id="areaPreviewWrap">${area>0?`<div class="area-preview"><span>Diện tích đất</span><span>${area.toLocaleString('vi-VN')} m²</span></div>`:''}</div>
+    </div>`;
+  }
+  if(state.step===2){
+    const landArea = (Number(f.landWidth)||0)*(Number(f.landLength)||0);
+    const floorArea = f.useCustomFloorArea ? Number(f.floorArea)||0 : landArea;
+    return `
+    <div class="eyebrow">Bước 02</div>
+    <h2>Bạn muốn xây ngôi nhà như thế nào?</h2>
+    <p class="hint">Xác định quy mô để tính tổng diện tích xây dựng.</p>
+    <div class="field-group">
+      <div class="field ${errCls('floorArea')}">
+        <label class="f-label">Diện tích xây dựng mỗi tầng <span class="req">*</span></label>
+        <div class="f-suffix-wrap"><input class="f-input" type="number" min="0" id="f-floorArea" value="${floorArea||''}" placeholder="VD: 90"><span>m²</span></div>
+        <div style="margin-top:8px;font-size:12.5px;color:#8A968E;">
+          ${landArea>0 ? `Diện tích đất đã nhập: <strong>${landArea.toLocaleString('vi-VN')} m²</strong> — bạn có thể chỉnh lại diện tích xây dựng thực tế mỗi tầng.` : 'Nhập diện tích xây dựng thực tế mỗi tầng.'}
+        </div>
+        ${fieldError('floorArea')}
+      </div>
+      <div class="field">
+        <label class="f-label">Số tầng</label>
+        <div class="stepper-input">
+          <button id="floorMinus" type="button">−</button>
+          <div class="val" id="floorVal">${f.floors}</div>
+          <button id="floorPlus" type="button">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="toggle-row">
+          <div><div class="t-label">Có tầng tum?</div><div class="t-desc">Thêm khoảng 70% diện tích một tầng</div></div>
+          <div class="switch ${f.mezzanine?'on':''}" data-toggle="mezzanine"></div>
+        </div>
+        <div class="toggle-row">
+          <div><div class="t-label">Có sân thượng?</div><div class="t-desc">Thêm khoảng 30% diện tích một tầng</div></div>
+          <div class="switch ${f.rooftop?'on':''}" data-toggle="rooftop"></div>
+        </div>
+        <div class="toggle-row">
+          <div><div class="t-label">Có tầng hầm?</div><div class="t-desc">Chi phí thi công cao hơn tầng nổi</div></div>
+          <div class="switch ${f.basement?'on':''}" data-toggle="basement"></div>
+        </div>
+      </div>
+      ${f.basement?`
+      <div class="field ${errCls('basementArea')}" style="margin-top:-6px;">
+        <label class="f-label">Diện tích tầng hầm <span class="req">*</span></label>
+        <div class="f-suffix-wrap"><input class="f-input" type="number" min="0" id="f-basementArea" value="${f.basementArea}" placeholder="VD: 90"><span>m²</span></div>
+        ${fieldError('basementArea')}
+      </div>`:''}
+    </div>`;
+  }
+  if(state.step===3){
+    return `
+    <div class="eyebrow">Bước 03</div>
+    <h2>Bạn mong muốn mức hoàn thiện nào?</h2>
+    <p class="hint">Đơn giá áp dụng trên mỗi m² diện tích xây dựng.</p>
+    <div class="field ${errCls('pkg')}">
+      <div class="pkg-grid" id="pkgGrid">
+        ${Object.values(pricingConfig.packages).map(p=>`
+          <div class="pkg-card ${f.pkg===p.key?'sel':''}" data-pkg="${p.key}">
+            ${p.badge?`<span class="pkg-badge">${p.badge}</span>`:''}
+            <h4>${p.name}</h4>
+            <p>${p.desc}</p>
+            <div class="price">Từ ${fmtVND(p.price)}<small>/m²</small></div>
+          </div>`).join('')}
+      </div>
+      ${fieldError('pkg')}
+    </div>
+    <div class="field" style="margin-top:32px;">
+      <label class="f-label">Bạn có nhu cầu thêm hạng mục nào không?</label>
+      <div class="addon-grid" id="addonGrid">
+        ${pricingConfig.addons.map(a=>`
+          <div class="addon-card ${f.addons.includes(a.key)?'sel':''}" data-addon="${a.key}">
+            <div class="addon-check">${f.addons.includes(a.key)?'✓':''}</div>
+            <div class="t">${a.label}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+  if(state.step===4){
+    return `
+    <div class="eyebrow">Bước 04</div>
+    <h2>Để Tre Xanh gửi báo giá cho bạn</h2>
+    <p class="hint">Chuyên viên tư vấn sẽ liên hệ dựa trên thông tin bạn cung cấp.</p>
+    <div class="field-group">
+      <div class="field ${errCls('name')}">
+        <label class="f-label">Họ và tên <span class="req">*</span></label>
+        <input class="f-input" id="f-name" value="${f.name}" placeholder="Nguyễn Văn A">
+        ${fieldError('name')}
+      </div>
+      <div class="field-row">
+        <div class="field ${errCls('phone')}">
+          <label class="f-label">Số điện thoại <span class="req">*</span></label>
+          <input class="f-input" id="f-phone" value="${f.phone}" placeholder="09xxxxxxxx">
+          ${fieldError('phone')}
+        </div>
+        <div class="field">
+          <label class="f-label">Email</label>
+          <input class="f-input" id="f-email" value="${f.email}" placeholder="ban@email.com">
+        </div>
+      </div>
+      <div class="field">
+        <label class="f-label">Thời gian dự kiến xây nhà</label>
+        <select class="f-input" id="f-timeline">
+          ${[['trong-3-thang','Trong 3 tháng'],['3-6-thang','3 – 6 tháng'],['6-12-thang','6 – 12 tháng'],['chua-xac-dinh','Chưa xác định']].map(([v,l])=>`<option value="${v}" ${f.timeline===v?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label class="f-label">Ghi chú</label>
+        <textarea class="f-input" id="f-note" placeholder="Bạn có thể chia sẻ thêm nhu cầu hoặc mong muốn về ngôi nhà.">${f.note}</textarea>
+      </div>
+      <div class="check-row ${errCls('consent')}" id="consentRow">
+        <div class="checkbox-box ${f.consent?'on':''}" id="consentBox">${f.consent?'✓':''}</div>
+        <div class="txt">Tôi đồng ý để Tre Xanh liên hệ tư vấn về nhu cầu xây dựng của tôi. <span class="req">*</span></div>
+      </div>
+      ${fieldError('consent')}
+    </div>`;
+  }
+}
+
+/* ---------- VALIDATION ---------- */
+function validateStep(){
+  const f = state.form; const e = {};
+  if(state.step===1){
+    if(!f.province) e.province = 'Vui lòng chọn tỉnh/thành phố.';
+    if(!f.landWidth || Number(f.landWidth)<=0) e.landWidth = 'Kích thước phải lớn hơn 0.';
+    if(!f.landLength || Number(f.landLength)<=0) e.landLength = 'Kích thước phải lớn hơn 0.';
+  }
+  if(state.step===2){
+    if(!f.floorArea || Number(f.floorArea)<=0) e.floorArea = 'Vui lòng nhập diện tích xây dựng hợp lệ.';
+    if(f.basement && (!f.basementArea || Number(f.basementArea)<=0)) e.basementArea = 'Vui lòng nhập diện tích tầng hầm.';
+  }
+  if(state.step===3){
+    if(!f.pkg) e.pkg = 'Vui lòng chọn một gói hoàn thiện.';
+  }
+  if(state.step===4){
+    if(!f.name.trim()) e.name = 'Vui lòng nhập họ và tên.';
+    if(!/^0\d{9,10}$/.test(f.phone.trim())) e.phone = 'Số điện thoại không hợp lệ.';
+    if(!f.consent) e.consent = 'Vui lòng đồng ý để Tre Xanh liên hệ tư vấn.';
+  }
+  state.errors = e;
+  return Object.keys(e).length===0;
+}
+
+/* ---------- STEP EVENT WIRING ---------- */
+function collectStepInputsIntoState(){
+  const f = state.form;
+  if(state.step===1){
+    if($('#f-province')) f.province = $('#f-province').value;
+    if($('#f-district')) f.district = $('#f-district').value;
+    if($('#f-landWidth')) f.landWidth = $('#f-landWidth').value;
+    if($('#f-landLength')) f.landLength = $('#f-landLength').value;
+  }
+  if(state.step===2){
+    if($('#f-floorArea')) f.floorArea = $('#f-floorArea').value;
+    if($('#f-basementArea')) f.basementArea = $('#f-basementArea').value;
+  }
+  if(state.step===4){
+    if($('#f-name')) f.name = $('#f-name').value;
+    if($('#f-phone')) f.phone = $('#f-phone').value;
+    if($('#f-email')) f.email = $('#f-email').value;
+    if($('#f-timeline')) f.timeline = $('#f-timeline').value;
+    if($('#f-note')) f.note = $('#f-note').value;
+  }
+}
+
+function updateAreaPreview(){
+  const f = state.form;
+  const wrap = $('#areaPreviewWrap');
+  if(!wrap) return;
+  const area = (Number(f.landWidth)||0) * (Number(f.landLength)||0);
+  wrap.innerHTML = area>0 ? `<div class="area-preview"><span>Diện tích đất</span><span>${area.toLocaleString('vi-VN')} m²</span></div>` : '';
+}
+
+function rerenderCalcCard(){
+  $('#calcCardInner').innerHTML = renderCalcStep();
+  const nav = document.querySelector('.calc-nav');
+  if(nav) nav.outerHTML = renderCalcNav();
+  const sticky = document.querySelector('.sticky-mobile-cta');
+  if(sticky) sticky.outerHTML = renderStickyCta();
+  const track = document.querySelector('.progress-track');
+  if(track) track.innerHTML = renderCalcProgress();
+  wireCalcStep();
+}
+
+function wireCalcStep(){
+  const f = state.form;
+  on('#f-province','change', e=>{ f.province=e.target.value; });
+  on('#f-district','input', e=>{ f.district=e.target.value; });
+  on('#f-landWidth','input', e=>{ f.landWidth=e.target.value; updateAreaPreview(); });
+  on('#f-landLength','input', e=>{ f.landLength=e.target.value; updateAreaPreview(); });
+  $$('#landTypeCards .radio-card').forEach(card=>{
+    card.addEventListener('click', ()=>{ f.landType=card.dataset.val; $$('#landTypeCards .radio-card').forEach(c=>c.classList.remove('sel')); card.classList.add('sel'); });
+  });
+
+  on('#f-floorArea','input', e=>{ f.floorArea=e.target.value; f.useCustomFloorArea=true; });
+  on('#f-basementArea','input', e=>{ f.basementArea=e.target.value; });
+  on('#floorPlus','click', ()=>{ f.floors=Math.min(5,f.floors+1); $('#floorVal').textContent=f.floors; });
+  on('#floorMinus','click', ()=>{ f.floors=Math.max(1,f.floors-1); $('#floorVal').textContent=f.floors; });
+  $$('[data-toggle]').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      const key = sw.dataset.toggle; f[key]=!f[key];
+      rerenderCalcCard();
+    });
+  });
+
+  $$('#pkgGrid .pkg-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      f.pkg = card.dataset.pkg;
+      $$('#pkgGrid .pkg-card').forEach(c=>c.classList.remove('sel'));
+      card.classList.add('sel');
+    });
+  });
+  $$('#addonGrid .addon-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const key = card.dataset.addon;
+      const idx = f.addons.indexOf(key);
+      if(idx>-1) f.addons.splice(idx,1); else f.addons.push(key);
+      card.classList.toggle('sel');
+      card.querySelector('.addon-check').textContent = f.addons.includes(key)?'✓':'';
+    });
+  });
+
+  on('#f-name','input', e=>{ f.name=e.target.value; });
+  on('#f-phone','input', e=>{ f.phone=e.target.value; });
+  on('#f-email','input', e=>{ f.email=e.target.value; });
+  on('#f-timeline','change', e=>{ f.timeline=e.target.value; });
+  on('#f-note','input', e=>{ f.note=e.target.value; });
+  on('#consentRow','click', ()=>{
+    f.consent=!f.consent;
+    $('#consentBox').classList.toggle('on', f.consent);
+    $('#consentBox').textContent = f.consent?'✓':'';
+  });
+
+  on('#backBtn','click', goPrevStep);
+  on('#mBack','click', goPrevStep);
+  on('#nextBtn','click', goNextStep);
+  on('#mNext','click', goNextStep);
+}
+
+function goPrevStep(){
+  collectStepInputsIntoState();
+  state.step = Math.max(1, state.step-1);
+  state.errors = {};
+  renderApp();
+}
+function goNextStep(){
+  collectStepInputsIntoState();
+  if(!validateStep()){ rerenderCalcCard(); shakeInvalid(); return; }
+  if(state.step<4){
+    state.step++;
+    renderApp();
+  } else {
+    submitCalculator();
+  }
+}
+function shakeInvalid(){
+  const first = document.querySelector('.has-error');
+  if(first) first.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function submitCalculator(){
+  const nextBtn = $('#nextBtn'), mBtn = $('#mNext');
+  [nextBtn,mBtn].forEach(b=>{ if(b){ b.disabled=true; b.innerHTML = '<span class="spinner"></span> Đang tính toán...'; } });
+
+  setTimeout(async ()=>{
+    const f = state.form;
+    const quote = computeQuote(f);
+    state.lastQuote = { form: {...f}, ...quote };
+
+    const payload = {
+      name:f.name, phone:f.phone, email:f.email,
+      location: f.province + (f.district?', '+f.district:''),
+      landWidth:f.landWidth, landLength:f.landLength,
+      landArea: (Number(f.landWidth)||0)*(Number(f.landLength)||0),
+      houseType: {nhapho:'Nhà phố',bietthu:'Biệt thự',capbon:'Nhà cấp 4',nhavuon:'Nhà vườn',khac:'Khác'}[f.landType],
+      floors:f.floors, basement:f.basement, rooftop:f.rooftop, package:f.pkg, addons:f.addons,
+      totalConstructionArea: quote.totalConstructionArea,
+      estimatedPrice: quote.estimatedPrice, estimatedPriceMin: quote.estimatedPriceMin, estimatedPriceMax: quote.estimatedPriceMax,
+      timeline:f.timeline, note:f.note, createdAt: new Date().toISOString(),
+    };
+
+    await submitLead(payload);
+    showSuccessOverlay();
+  }, 700);
+}
+
+function showSuccessOverlay(){
+  const el = $('#successOverlay');
+  el.innerHTML = `
+    <div class="success-box">
+      <div class="success-check">✓</div>
+      <h3>ĐÃ NHẬN THÔNG TIN</h3>
+      <p>Tre Xanh đã nhận được nhu cầu xây dựng của bạn. Chuyên viên tư vấn sẽ liên hệ trong thời gian sớm nhất.</p>
+      <button class="btn btn-primary btn-block" id="viewQuoteBtn" style="margin-top:24px;">XEM BÁO GIÁ CHI TIẾT →</button>
+    </div>`;
+  el.classList.add('show');
+  on('#viewQuoteBtn','click', ()=>{
+    el.classList.remove('show');
+    state.step = 5;
+    renderApp();
+  });
+}
+
+/* ---------- RESULT PAGE ---------- */
+function renderResultPage(){
+  const q = state.lastQuote;
+  const f = q.form;
+  const landTypeLabel = {nhapho:'Nhà phố',bietthu:'Biệt thự',capbon:'Nhà cấp 4',nhavuon:'Nhà vườn',khac:'Khác'}[f.landType];
+  const pkgLabel = pricingConfig.packages[f.pkg].name.replace('GÓI ','');
+
+  const rows = q.items.map(it=>{
+    if(it.isAddon){
+      return it.addonItems.map(ai=>`<tr><td>${ai.label}</td><td class="num">—</td><td class="num">—</td><td class="num">${fmtVND(ai.total)}</td></tr>`).join('');
+    }
+    return `<tr><td>${it.label}</td><td class="num">${it.area?it.area.toLocaleString('vi-VN',{maximumFractionDigits:1}):'—'} m²</td><td class="num">${it.unit?fmtVND(it.unit):'—'}</td><td class="num">${fmtVND(it.total)}</td></tr>`;
+  }).join('');
+
+  const bkCards = q.items.map(it=>{
+    if(it.isAddon){
+      return it.addonItems.map(ai=>`<div class="bk-card"><div><div class="n">${ai.label}</div></div><div class="p">${fmtVND(ai.total)}</div></div>`).join('');
+    }
+    return `<div class="bk-card"><div><div class="n">${it.label}</div><div class="a">${it.area?it.area.toLocaleString('vi-VN',{maximumFractionDigits:1})+' m²':''}</div></div><div class="p">${fmtVND(it.total)}</div></div>`;
+  }).join('');
+
+  return `
+  ${renderHeader()}
+  <div class="result-hero">
+    <div class="wrap">
+      <div class="eyebrow">Báo giá dự kiến</div>
+      <h1>BÁO GIÁ XÂY DỰNG DỰ KIẾN</h1>
+      <p>Dựa trên thông tin công trình bạn vừa cung cấp.</p>
+    </div>
+  </div>
+  <div class="result-body">
+    <div class="price-card">
+      <div class="lbl">Chi phí xây dựng dự kiến</div>
+      <div class="num" id="priceCounter">0đ</div>
+      <div class="range">Khoảng ${fmtBillion(q.estimatedPriceMin)} – ${fmtBillion(q.estimatedPriceMax)} VNĐ</div>
+      <div class="disclaimer">Chi phí trên chỉ mang tính chất tham khảo dựa trên thông tin bạn cung cấp. Báo giá thực tế có thể thay đổi tùy hiện trạng khu đất, thiết kế, vật liệu, điều kiện thi công và yêu cầu hoàn thiện.</div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="sum-card"><div class="k">Địa điểm</div><div class="v">${f.province}${f.district?', '+f.district:''}</div></div>
+      <div class="sum-card"><div class="k">Loại nhà</div><div class="v">${landTypeLabel}</div></div>
+      <div class="sum-card"><div class="k">Kích thước đất</div><div class="v">${f.landWidth} × ${f.landLength} m</div></div>
+      <div class="sum-card"><div class="k">Số tầng</div><div class="v">${f.floors} tầng</div></div>
+      <div class="sum-card"><div class="k">Tổng diện tích XD</div><div class="v">${q.totalConstructionArea.toLocaleString('vi-VN',{maximumFractionDigits:1})} m²</div></div>
+      <div class="sum-card"><div class="k">Gói hoàn thiện</div><div class="v">${pkgLabel}</div></div>
+    </div>
+
+    <div class="breakdown">
+      <h3>Chi tiết chi phí theo hạng mục</h3>
+      <table class="bk-table">
+        <thead><tr><th>Hạng mục</th><th class="num">Diện tích</th><th class="num">Đơn giá</th><th class="num">Thành tiền</th></tr></thead>
+        <tbody>${rows}
+          <tr class="total"><td>CHI PHÍ DỰ KIẾN</td><td></td><td></td><td class="num">${fmtVND(q.estimatedPrice)}</td></tr>
+        </tbody>
+      </table>
+      <div class="bk-cards">${bkCards}
+        <div class="bk-card" style="background:var(--soft-green);"><div class="n" style="color:var(--forest);">CHI PHÍ DỰ KIẾN</div><div class="p">${fmtVND(q.estimatedPrice)}</div></div>
+      </div>
+    </div>
+
+    <div class="result-cta">
+      <h3>Muốn biết chi phí chính xác hơn?</h3>
+      <p>Đội ngũ Tre Xanh có thể tư vấn dựa trên hiện trạng khu đất và nhu cầu thực tế của bạn.</p>
+      <div class="result-btns">
+        <button class="btn btn-primary" id="consultBtn">NHẬN TƯ VẤN MIỄN PHÍ</button>
+        <button class="btn btn-outline-light" id="scheduleBtn">ĐẶT LỊCH KHẢO SÁT</button>
+        <button class="btn btn-outline-light" id="downloadPdfBtn">TẢI BÁO GIÁ PDF</button>
+      </div>
+    </div>
+    <div class="result-restart"><button id="restartBtn">Tính lại báo giá khác</button></div>
+  </div>
+  `;
+}
+
+function animatePriceCounter(target){
+  const el = $('#priceCounter');
+  if(!el) return;
+  const duration = 900; const startTime = performance.now();
+  function tick(now){
+    const p = Math.min(1,(now-startTime)/duration);
+    const eased = 1-Math.pow(1-p,3);
+    el.textContent = fmtVND(target*eased);
+    if(p<1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function wireResultPage(){
+  if(state.lastQuote){ animatePriceCounter(state.lastQuote.estimatedPrice); }
+  on('#consultBtn','click', ()=> toast('Đã ghi nhận yêu cầu tư vấn miễn phí!','✓'));
+  on('#scheduleBtn','click', ()=> toast('Đã ghi nhận yêu cầu đặt lịch khảo sát!','📅'));
+  on('#downloadPdfBtn','click', downloadMockPdf);
+  on('#restartBtn','click', ()=>{
+    state.step = 1; state.errors = {};
+    state.form = {
+      province:'', district:'', landType:'nhapho', landWidth:'', landLength:'',
+      floorArea:'', useCustomFloorArea:false, floors:1, mezzanine:false, rooftop:false,
+      basement:false, basementArea:'', pkg:'kha', addons:[],
+      name:'', phone:'', email:'', timeline:'chua-xac-dinh', note:'', consent:false,
+    };
+    renderApp();
+  });
+}
+
+function downloadMockPdf(){
+  const q = state.lastQuote; if(!q) return;
+  const f = q.form;
+  const lines = [
+    'TRE XANH — BÁO GIÁ XÂY DỰNG DỰ KIẾN',
+    '======================================',
+    `Địa điểm: ${f.province}${f.district?', '+f.district:''}`,
+    `Kích thước đất: ${f.landWidth} x ${f.landLength} m`,
+    `Số tầng: ${f.floors}`,
+    `Gói hoàn thiện: ${pricingConfig.packages[f.pkg].name}`,
+    '--------------------------------------',
+    ...q.items.flatMap(it=> it.isAddon ? it.addonItems.map(a=>`${a.label}: ${fmtVND(a.total)}`) : [`${it.label} (${it.area?it.area.toFixed(1):'-'} m²): ${fmtVND(it.total)}`]),
+    '--------------------------------------',
+    `CHI PHÍ DỰ KIẾN: ${fmtVND(q.estimatedPrice)}`,
+    `Khoảng: ${fmtBillion(q.estimatedPriceMin)} - ${fmtBillion(q.estimatedPriceMax)} VNĐ`,
+    '',
+    'Đây là báo giá tham khảo, không phải báo giá hợp đồng cuối cùng.',
+  ];
+  const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'TreXanh-BaoGia-DuKien.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('Đã tải file báo giá (bản demo dạng văn bản).','⬇');
+}
+
+/* ---------- INIT ---------- */
+window.addEventListener('DOMContentLoaded', renderApp);
+</script>
+</body>
+</html>
